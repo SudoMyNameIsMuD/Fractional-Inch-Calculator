@@ -1,0 +1,22 @@
+# Python bytecode and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local tooling and build output
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# macOS and editor-local files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
