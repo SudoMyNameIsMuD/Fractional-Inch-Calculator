@@ -23,7 +23,7 @@ class Calculator:
 
     def __init__(self, master):
         self.master = master
-        master.title("US Customary Units Calculator")
+        master.title(f"US Customary Units Calculator v{measure.__version__}")
 
         # --- Load Settings Object ---
         self.config = configparser.ConfigParser()

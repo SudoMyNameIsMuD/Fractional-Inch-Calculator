@@ -2,6 +2,8 @@
 import re
 from fractions import Fraction
 
+__version__ = "1.0.0"
+
 FRACTION_DENOMINATORS = [2, 4, 8, 16, 32, 64, 128, 256]
 UNITS = ["Feet-inches", "Decimal inches", "Millimeters"]
 MM_PER_INCH = Fraction(254, 10)

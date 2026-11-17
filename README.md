@@ -1,5 +1,7 @@
 # Fractional-Inch-Calculator
 
+Version 1.0.0 (version is defined in `measure.py` as `__version__`; release tags are `v<version>`).
+
 A desktop calculator for US customary measurements. Enter two values as feet, inches and a fraction of an inch, then add, subtract, multiply or divide them. Results are shown as feet, inches and fractions.
 
 ## Run
