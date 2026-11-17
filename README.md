@@ -19,6 +19,14 @@ Window size and the last entered values are saved to `calculator_settings.ini` (
 - `Fractional-Inch-Calculator.swift` – Swift version.
 - `ROADMAP.md` – planned improvements.
 
+## Development
+
+```
+pip install -r requirements-dev.txt
+ruff check .
+pytest
+```
+
 ## License
 
 GNU General Public License v3.0 – see [LICENSE](LICENSE).

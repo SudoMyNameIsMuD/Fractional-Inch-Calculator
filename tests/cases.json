@@ -1,0 +1,22 @@
+{
+  "_comment": "Language-neutral cases. 'inputs' are [feet, inches, fraction] entry strings; 'expected' is the formatted result.",
+  "calculations": [
+    {"op": "add", "a": ["5", "3", "1/2"], "b": ["0", "10", "3/4"], "expected": "6' 2 1/4\""},
+    {"op": "add", "a": ["", "11", "1/2"], "b": ["", "", "1/2"], "expected": "1' 0 0\""},
+    {"op": "subtract", "a": ["1", "0", ""], "b": ["", "6", "1/4"], "expected": "0' 5 3/4\""},
+    {"op": "subtract", "a": ["", "1", ""], "b": ["", "2", ""], "expected": "-0' 1 0\""},
+    {"op": "subtract", "a": ["1", "", ""], "b": ["1", "", ""], "expected": "0' 0 0\""},
+    {"op": "multiply", "a": ["", "3", "1/2"], "b": ["", "2", ""], "expected": "0' 7 0\""},
+    {"op": "divide", "a": ["", "10", ""], "b": ["", "4", ""], "expected": "0' 2 1/2\""},
+    {"op": "add", "a": ["", "", "255/256"], "b": ["", "", ""], "expected": "0' 0 255/256\""},
+    {"op": "add", "a": ["", "", "1/512"], "b": ["", "", ""], "expected": "0' 0 0\""},
+    {"op": "add", "a": ["", "", "0.25"], "b": ["", "", ""], "expected": "0' 0 1/4\""}
+  ],
+  "errors": [
+    {"op": "add", "a": ["x", "", ""], "b": ["", "", ""], "message": "Invalid input. Please enter valid numbers and fractions."},
+    {"op": "add", "a": ["", "", "1/x"], "b": ["", "", ""], "message": "Invalid input. Please enter valid numbers and fractions."},
+    {"op": "add", "a": ["", "", "1/0"], "b": ["", "", ""], "message": "Invalid fraction. Denominator cannot be zero."},
+    {"op": "divide", "a": ["", "1", ""], "b": ["", "", ""], "message": "Cannot divide by zero"},
+    {"op": "power", "a": ["", "1", ""], "b": ["", "1", ""], "message": "Invalid operation"}
+  ]
+}

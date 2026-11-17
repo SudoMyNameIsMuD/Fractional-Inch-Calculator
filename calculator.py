@@ -1,8 +1,10 @@
+import configparser  # For persistent settings
+import os  # To check if the config file exists
 import tkinter as tk
 from tkinter import ttk
+
 import measure
-import configparser  # For persistent settings
-import os # To check if the config file exists
+
 
 class Calculator:
     CONFIG_FILE = "calculator_settings.ini" #Filename for settings

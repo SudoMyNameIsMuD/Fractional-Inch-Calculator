@@ -17,9 +17,9 @@ also exists. Older versions (`v2`–`v8.3`) are kept as separate files.
 - [x] Define clear input validation and error messages (bad fractions, zero denominators, negatives); `MeasurementError` carries the message.
 
 ## Phase 3 – Tests and CI
-- [ ] `pytest` unit tests: parsing, add/subtract, negative results, rounding to 1/16, 1/32, 1/64, carry from inches to feet.
-- [ ] GitHub Actions: lint (ruff) + tests on push/PR.
-- [ ] Shared test-case file (JSON) that the Swift version can also check, to keep both in sync.
+- [x] `pytest` unit tests: parsing, add/subtract, negative results, rounding to 1/16, 1/32, 1/64, carry from inches to feet.
+- [x] GitHub Actions: lint (ruff) + tests on push/PR.
+- [x] Shared test-case file (`tests/cases.json`) created; [ ] wire the Swift version up to it.
 
 ## Phase 4 – Features
 - [ ] Multiply/divide already exist; make them scalar-aware and add chained operations.
