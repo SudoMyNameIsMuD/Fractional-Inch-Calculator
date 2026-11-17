@@ -22,11 +22,11 @@ also exists. Older versions (`v2`–`v8.3`) are kept as separate files.
 - [x] Shared test-case file (`tests/cases.json`) created; [ ] wire the Swift version up to it.
 
 ## Phase 4 – Features
-- [ ] Multiply/divide already exist; make them scalar-aware and add chained operations.
-- [ ] Selectable precision (1/8 … 1/64) and decimal/metric (mm) display.
-- [ ] Accept typed input like `5' 3 1/2"`.
-- [ ] Calculation history and copy-result button.
-- [ ] Keyboard shortcuts and clear/reset.
+- [x] Multiply/divide treat Measurement 2 as a plain factor; "Use Result" chains operations.
+- [x] Selectable precision (1/2 … 1/256) and decimal/metric (mm) display.
+- [x] Accept typed input like `5' 3 1/2"`.
+- [x] Calculation log and copy-result button (already present).
+- [x] Keyboard shortcuts and clear/reset.
 
 ## Phase 5 – Distribution
 - [ ] Package with PyInstaller; publish binaries via GitHub Releases.

@@ -10,6 +10,13 @@ Requires Python 3 with Tkinter (included in most Python installs).
 python calculator.py
 ```
 
+Features:
+- Enter values in the feet/inches/fraction fields, or type a measurement such as `5' 3 1/2"`, `3-1/2"` or `10.5in` in "Or type" and press Enter.
+- Multiply and divide treat Measurement 2 as a plain number (e.g. `6' 2 1/4"` × `2` – enter 2 in the inches field).
+- **Use Result** moves the last result into Measurement 1 for chained calculations.
+- Choose precision (1/2 to 1/256) and display units (feet-inches, decimal inches, millimeters).
+- Shortcuts: `Ctrl+1/2/3/4` add/subtract/multiply/divide, `Ctrl+U` use result, `Ctrl+Shift+C` copy result, `Ctrl+Delete` clear.
+
 Window size and the last entered values are saved to `calculator_settings.ini` (created on first close, git-ignored).
 
 ## Files

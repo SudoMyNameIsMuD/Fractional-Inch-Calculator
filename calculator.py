@@ -44,6 +44,14 @@ class Calculator:
                                         invalidcommand=lambda: self.set_entry_background(self.fraction_entry, "red"))
         self.fraction_entry.grid(row=2, column=1, padx=5, pady=5)
 
+        ttk.Label(self.measurement1_frame, text="Or type:").grid(row=3, column=0, padx=5, pady=5)
+        self.typed_entry = ttk.Entry(self.measurement1_frame, width=14)
+        self.typed_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.typed_entry.bind(
+            "<Return>",
+            lambda event: self.apply_typed(self.typed_entry, self.feet_entry, self.inches_entry, self.fraction_entry),
+        )
+
         # --- Measurement 2 Frame ---
         self.measurement2_frame = ttk.LabelFrame(master, text="Measurement 2")
         self.measurement2_frame.grid(row=0, column=5, padx=5, pady=5, columnspan=4)
@@ -72,6 +80,14 @@ class Calculator:
                                          invalidcommand=lambda: self.set_entry_background(self.fraction_entry2, "red"))
         self.fraction_entry2.grid(row=2, column=1, padx=5, pady=5)
 
+        ttk.Label(self.measurement2_frame, text="Or type:").grid(row=3, column=0, padx=5, pady=5)
+        self.typed_entry2 = ttk.Entry(self.measurement2_frame, width=14)
+        self.typed_entry2.grid(row=3, column=1, padx=5, pady=5)
+        self.typed_entry2.bind(
+            "<Return>",
+            lambda event: self.apply_typed(self.typed_entry2, self.feet_entry2, self.inches_entry2, self.fraction_entry2),
+        )
+
         # Buttons
         self.add_button = ttk.Button(master, text="Add", command=lambda: self.calculate("add"))
         self.add_button.grid(row=3, column=0, padx=5, pady=5)
@@ -90,6 +106,24 @@ class Calculator:
 
         self.reset_button = ttk.Button(master, text="Reset All", command=self.reset_all)  # Reset All button
         self.reset_button.grid(row=4, column=2, padx=5, pady=5)
+
+        self.use_result_button = ttk.Button(master, text="Use Result", command=self.use_result)
+        self.use_result_button.grid(row=4, column=0, padx=5, pady=5)
+
+        # Display options
+        self.precision_var = tk.StringVar(value="1/256")
+        self.units_var = tk.StringVar(value=measure.UNITS[0])
+        ttk.Label(master, text="Precision:").grid(row=6, column=0, padx=5, pady=5)
+        self.precision_box = ttk.Combobox(master, textvariable=self.precision_var, width=8, state="readonly",
+                                          values=[f"1/{d}" for d in measure.FRACTION_DENOMINATORS])
+        self.precision_box.grid(row=6, column=1, padx=5, pady=5)
+        ttk.Label(master, text="Units:").grid(row=6, column=2, padx=5, pady=5)
+        self.units_box = ttk.Combobox(master, textvariable=self.units_var, width=14, state="readonly", values=measure.UNITS)
+        self.units_box.grid(row=6, column=3, padx=5, pady=5)
+        self.precision_box.bind("<<ComboboxSelected>>", lambda event: self.refresh_result())
+        self.units_box.bind("<<ComboboxSelected>>", lambda event: self.refresh_result())
+
+        self.last_total = None  # Exact inches of the most recent result
 
         # Result
         self.result_label = ttk.Label(master, text="Result:")
@@ -131,6 +165,13 @@ class Calculator:
         self.inches_entry2.bind("<FocusIn>", lambda event: self.set_current_entry(self.inches_entry2))
         self.fraction_entry2.bind("<FocusIn>", lambda event: self.set_current_entry(self.fraction_entry2))
 
+        # Keyboard shortcuts
+        for key, op in (("1", "add"), ("2", "subtract"), ("3", "multiply"), ("4", "divide")):
+            master.bind(f"<Control-Key-{key}>", lambda event, op=op: self.calculate(op))
+        master.bind("<Control-Delete>", lambda event: self.clear_fields())
+        master.bind("<Control-u>", lambda event: self.use_result())
+        master.bind("<Control-Shift-C>", lambda event: self.copy_result())
+
         # Log
         self.log_label = ttk.Label(master, text="Calculation Log:")
         self.log_label.grid(row=8, column=0, padx=5, pady=5)
@@ -157,6 +198,8 @@ class Calculator:
             try:
                 self.config.read(self.CONFIG_FILE)
                 self.master.geometry(self.config['WINDOW']['geometry'])
+                self.precision_var.set(self.config.get('OPTIONS', 'precision', fallback=self.precision_var.get()))
+                self.units_var.set(self.config.get('OPTIONS', 'units', fallback=self.units_var.get()))
                 try: #Wrap entry population
                     self.feet_entry.insert(0, self.config['VALUES']['feet1'])
                     self.inches_entry.insert(0, self.config['VALUES']['inches1'])
@@ -186,6 +229,7 @@ class Calculator:
             'inches2': self.inches_entry2.get(),
             'fraction2': self.fraction_entry2.get()
         }
+        self.config['OPTIONS'] = {'precision': self.precision_var.get(), 'units': self.units_var.get()}
         with open(self.CONFIG_FILE, 'w') as configfile:
             self.config.write(configfile)
 
@@ -249,10 +293,46 @@ class Calculator:
             self.result_value.config(text=str(e))
             return
 
-        result_formatted = measure.format_measurement(total_inches)
+        self.last_total = total_inches
+        result_formatted = self.format_total(total_inches)
         self.result_value.config(text=result_formatted)
         operator = measure.OPERATORS[operation]
-        self.log_calculation(f"{measure.format_measurement(value1)} {operator} {measure.format_measurement(value2)} = {result_formatted}\n")
+        # Multiply/divide treat Measurement 2 as a plain factor, not a length.
+        right = measure.format_number(value2) if operation in ("multiply", "divide") else self.format_total(value2)
+        self.log_calculation(f"{self.format_total(value1)} {operator} {right} = {result_formatted}\n")
+
+    def format_total(self, total_inches):
+        return measure.format_result(total_inches, self.units_var.get(), int(self.precision_var.get().split("/")[1]))
+
+    def refresh_result(self):
+        """Re-renders the last result after a precision or unit change."""
+        if self.last_total is not None:
+            self.result_value.config(text=self.format_total(self.last_total))
+
+    def apply_typed(self, typed_entry, feet_entry, inches_entry, fraction_entry):
+        """Fills the feet/inches/fraction fields from a free-form typed measurement."""
+        try:
+            parts = measure.split_inches(measure.parse_typed(typed_entry.get()))
+        except measure.MeasurementError as e:
+            self.result_value.config(text=str(e))
+            self.set_entry_background(typed_entry, "red")
+            return
+        self.set_entry_background(typed_entry, "white")
+        for entry, value in zip((feet_entry, inches_entry, fraction_entry), parts):
+            entry.delete(0, tk.END)
+            entry.insert(0, value)
+        typed_entry.delete(0, tk.END)
+
+    def use_result(self):
+        """Moves the last result into Measurement 1 so calculations can be chained."""
+        if self.last_total is None:
+            return
+        parts = measure.split_inches(self.last_total)
+        for entry, value in zip((self.feet_entry, self.inches_entry, self.fraction_entry), parts):
+            entry.delete(0, tk.END)
+            entry.insert(0, value)
+        for entry in (self.feet_entry2, self.inches_entry2, self.fraction_entry2, self.typed_entry, self.typed_entry2):
+            entry.delete(0, tk.END)
 
     def log_calculation(self, entry):
         """Appends a calculation entry to the log."""
@@ -269,7 +349,10 @@ class Calculator:
         self.feet_entry2.delete(0, tk.END)
         self.inches_entry2.delete(0, tk.END)
         self.fraction_entry2.delete(0, tk.END)
+        self.typed_entry.delete(0, tk.END)
+        self.typed_entry2.delete(0, tk.END)
         self.result_value.config(text="")
+        self.last_total = None
 
     def reset_all(self):
         """Clears all input fields and the calculation log."""
