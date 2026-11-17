@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+calculator_settings.ini
+.venv/
+build/
+dist/
+*.spec
