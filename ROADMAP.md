@@ -8,7 +8,7 @@ also exists. Older versions (`v2`–`v8.3`) are kept as separate files.
 - [x] Promote `v8.4.py` to a single `calculator.py`; remove old version files (tagged `pre-cleanup-v8.4`).
 - [x] Rename the `.py` files without spaces/dots so they are importable.
 - [x] Add `.gitignore` (ignore `calculator_settings.ini` user state, `__pycache__`).
-- [ ] Expand README further: screenshot, usage examples (basic run instructions done).
+- [x] Expand README: screenshot, usage examples, run instructions.
 - [x] Add a LICENSE (GPL-3.0).
 
 ## Phase 2 – Separate logic from UI
@@ -29,7 +29,7 @@ also exists. Older versions (`v2`–`v8.3`) are kept as separate files.
 - [x] Keyboard shortcuts and clear/reset.
 
 ## Phase 5 – Distribution
-- [ ] Package with PyInstaller; publish binaries via GitHub Releases.
+- [x] PyInstaller packaging and release workflow prepared (not yet released; tag `v*` to publish).
 - [ ] Decide long-term fate of the Swift port (maintain with shared tests, or archive).
 
 ## Open questions

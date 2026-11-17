@@ -34,6 +34,16 @@ ruff check .
 pytest
 ```
 
+## Building a release
+
+Binaries are built with PyInstaller (`pip install pyinstaller`):
+
+```
+pyinstaller --noconfirm --onefile --windowed --name FractionalInchCalculator calculator.py
+```
+
+The `Build release binaries` workflow does this for Linux, Windows and macOS. Running it manually (Actions tab) only produces downloadable artifacts. Pushing a tag like `v1.0.0` also publishes a GitHub Release. Packaged builds store settings in the user config folder (`%APPDATA%` or `~/.config`).
+
 ## License
 
 GNU General Public License v3.0 – see [LICENSE](LICENSE).

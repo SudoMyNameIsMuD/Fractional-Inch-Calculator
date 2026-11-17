@@ -1,13 +1,25 @@
 import configparser  # For persistent settings
 import os  # To check if the config file exists
+import sys
 import tkinter as tk
 from tkinter import ttk
 
 import measure
 
 
+def default_config_path():
+    """Settings live beside the script when run from source, or in the user's config dir in a packaged build."""
+    name = "calculator_settings.ini"
+    if not getattr(sys, "frozen", False):
+        return name
+    base = os.environ.get("APPDATA") or os.environ.get("XDG_CONFIG_HOME") or os.path.join(os.path.expanduser("~"), ".config")
+    folder = os.path.join(base, "FractionalInchCalculator")
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, name)
+
+
 class Calculator:
-    CONFIG_FILE = "calculator_settings.ini" #Filename for settings
+    CONFIG_FILE = default_config_path()  # Filename for settings
 
     def __init__(self, master):
         self.master = master
