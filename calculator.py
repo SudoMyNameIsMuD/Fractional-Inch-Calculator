@@ -1,11 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
-from fractions import Fraction
+import measure
 import configparser  # For persistent settings
 import os # To check if the config file exists
 
 class Calculator:
-    FRACTION_DENOMINATORS = [2, 4, 8, 16, 32, 64, 128, 256]  # Constant for denominators
     CONFIG_FILE = "calculator_settings.ini" #Filename for settings
 
     def __init__(self, master):
@@ -203,9 +202,9 @@ class Calculator:
         if not new_text:  # Allow empty string (clearing the field)
             return True
         try:
-            int(new_text)
+            measure.parse_int(new_text)
             return True
-        except ValueError:
+        except measure.MeasurementError:
             return False
 
     def validate_fraction_input(self, new_text):
@@ -214,11 +213,9 @@ class Calculator:
         if not new_text:  # Allow empty string
             return True
         try:
-            Fraction(new_text)
+            measure.parse_fraction(new_text)
             return True
-        except ValueError:
-            return False
-        except ZeroDivisionError:
+        except measure.MeasurementError:
             return False
 
     def set_current_entry(self, entry):
@@ -231,78 +228,29 @@ class Calculator:
             self.current_entry.insert(tk.END, text)
 
     def _get_value(self, feet_entry, inches_entry, fraction_entry):
-        """Helper function to get the total inches from the entries."""
+        """Returns the total inches from a set of entries, or None (showing the error) if invalid."""
         try:
-            feet = int(feet_entry.get() or 0)
-            inches = int(inches_entry.get() or 0)
-            fraction_str = fraction_entry.get() or "0/1"
-            fraction = Fraction(fraction_str)
-            return (feet * 12) + inches + float(fraction)  # Convert Fraction to float for calculations
-        except ValueError:
-            self.result_value.config(text="Invalid input. Please enter valid numbers and fractions.")
+            return measure.to_inches(feet_entry.get(), inches_entry.get(), fraction_entry.get())
+        except measure.MeasurementError as e:
+            self.result_value.config(text=str(e))
             return None
-        except ZeroDivisionError:
-            self.result_value.config(text="Invalid fraction. Denominator cannot be zero.")
-            return None
-
-    def _format_measurement(self, total_inches, is_input=False):
-        """Helper function to format the result back into feet, inches, and fraction."""
-        feet = int(total_inches // 12)
-        remaining_inches = total_inches % 12
-        inches = int(remaining_inches // 1)  # Get the whole number of inches
-        fractional_inches = remaining_inches - inches
-
-        # Find the closest common fraction (down to 1/256)
-        best_denominator = 1
-        min_diff = 1.0
-        for denominator in self.FRACTION_DENOMINATORS:
-            numerator = round(fractional_inches * denominator)
-            diff = abs(fractional_inches - Fraction(numerator, denominator))
-            if diff < min_diff:
-                min_diff = diff
-                best_denominator = denominator
-        numerator = round(fractional_inches * best_denominator)
-        closest_fraction = Fraction(numerator, best_denominator)
-
-        if is_input:
-            return f"{feet}\' {inches} {closest_fraction}\""
-        else:
-            return f"{feet}\' {inches} {closest_fraction}\""
 
     def calculate(self, operation):
         value1 = self._get_value(self.feet_entry, self.inches_entry, self.fraction_entry)
         value2 = self._get_value(self.feet_entry2, self.inches_entry2, self.fraction_entry2)
+        if value1 is None or value2 is None:
+            return
 
-        if value1 is not None and value2 is not None:
-            try:
-                if operation == "add":
-                    total_inches = value1 + value2
-                    operator = "+"
-                elif operation == "subtract":
-                    total_inches = value1 - value2
-                    operator = "-"
-                elif operation == "multiply":
-                    total_inches = value1 * value2
-                    operator = "*"
-                elif operation == "divide":
-                    if value2 == 0:
-                        self.result_value.config(text="Cannot divide by zero")
-                        return
-                    total_inches = value1 / value2
-                    operator = "/"
-                else:
-                    self.result_value.config(text="Invalid operation")
-                    return
+        try:
+            total_inches = measure.calculate(operation, value1, value2)
+        except measure.MeasurementError as e:
+            self.result_value.config(text=str(e))
+            return
 
-                result_formatted = self._format_measurement(total_inches)
-                self.result_value.config(text=result_formatted)
-
-                # Log the calculation
-                log_entry = f"{self._format_measurement(value1, is_input=True)} {operator} {self._format_measurement(value2, is_input=True)} = {result_formatted}\n"
-                self.log_calculation(log_entry)
-
-            except Exception as e:
-                self.result_value.config(text=f"An unexpected error occurred: {e}")
+        result_formatted = measure.format_measurement(total_inches)
+        self.result_value.config(text=result_formatted)
+        operator = measure.OPERATORS[operation]
+        self.log_calculation(f"{measure.format_measurement(value1)} {operator} {measure.format_measurement(value2)} = {result_formatted}\n")
 
     def log_calculation(self, entry):
         """Appends a calculation entry to the log."""
@@ -335,6 +283,7 @@ class Calculator:
         self.master.clipboard_append(result) #Append result to clipboard
         self.master.update() #Make sure the clipboard content is available
 
-root = tk.Tk()
-calculator = Calculator(root)
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    calculator = Calculator(root)
+    root.mainloop()

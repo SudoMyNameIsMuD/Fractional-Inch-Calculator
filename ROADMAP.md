@@ -12,9 +12,9 @@ also exists. Older versions (`v2`–`v8.3`) are kept as separate files.
 - [x] Add a LICENSE (GPL-3.0).
 
 ## Phase 2 – Separate logic from UI
-- [ ] Extract parsing/arithmetic/formatting into a pure module (`measure.py`) using `fractions.Fraction`.
-- [ ] Keep `Calculator` (Tkinter) as a thin view over that module.
-- [ ] Define clear input validation and error messages (bad fractions, zero denominators, negatives).
+- [x] Extract parsing/arithmetic/formatting into a pure module (`measure.py`) using `fractions.Fraction`.
+- [x] Keep `Calculator` (Tkinter) as a thin view over that module.
+- [x] Define clear input validation and error messages (bad fractions, zero denominators, negatives); `MeasurementError` carries the message.
 
 ## Phase 3 – Tests and CI
 - [ ] `pytest` unit tests: parsing, add/subtract, negative results, rounding to 1/16, 1/32, 1/64, carry from inches to feet.

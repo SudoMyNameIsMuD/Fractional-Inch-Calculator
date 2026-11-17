@@ -14,7 +14,8 @@ Window size and the last entered values are saved to `calculator_settings.ini` (
 
 ## Files
 
-- `calculator.py` – current Tkinter app.
+- `calculator.py` – Tkinter UI.
+- `measure.py` – GUI-free parsing, arithmetic and formatting (exact `Fraction` math).
 - `Fractional-Inch-Calculator.swift` – Swift version.
 - `ROADMAP.md` – planned improvements.
 
